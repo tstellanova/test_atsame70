@@ -9,11 +9,12 @@ use rt::{entry, ExceptionFrame};
 
 use atsame7xx_hal as p_hal;
 use p_hal::pac as pac;
-use cortex_m::asm::bkpt;
+use core::borrow::Borrow;
+// use cortex_m::asm::bkpt;
 
-fn setup_peripherals() {
+fn setup_device_peripherals() -> pac::Peripherals {
     let dp = pac::Peripherals::take().unwrap();
-    let cp = cortex_m::Peripherals::take().unwrap();
+    // let cp = cortex_m::Peripherals::take().unwrap();
 
     // configuration comes from generated HPL_PMC_CONFIG.H file for SAME70 XPLD sample
     //	_pmc_init_sources();
@@ -67,6 +68,14 @@ fn setup_peripherals() {
     });
 
 
+
+    //disable WDT for now
+
+    dp.WDT.wdt_cr.write(|w| unsafe {
+        w.bits(0)
+    });
+
+
     // clock for PORTC:
     // peripheral id: ID_PIOC         ( 12) /**< \brief Parallel Input/Output Controller (PIOC) */
     //		if (!hri_pmc_get_PCSR0_reg(PMC, (1 << periph_id))) {
@@ -74,15 +83,42 @@ fn setup_peripherals() {
     // 		}
     // GPIO for LED0: C8  (PORTC)
 
+    dp
 }
 
+//enum gpio_port { GPIO_PORTA, GPIO_PORTB, GPIO_PORTC, GPIO_PORTD, GPIO_PORTE };
+//#define LED0 GPIO(GPIO_PORTC, 8)
+//#define GPIO(port, pin) ((((port)&0x7u) << 5) + ((pin)&0x1Fu))
+//	_gpio_toggle_level((enum gpio_port)GPIO_PORT(pin), 1U << GPIO_PIN(pin));
 #[entry]
 fn main() -> ! {
     hprintln!("--- MAIN ---").unwrap();
+    let dp = setup_device_peripherals();
+    hprintln!("--- peripherals ---").unwrap();
 
-    setup_peripherals();
+    const GPIO_PINMASK: u32 = 0x1F;
+    // const GPIO_PORTC: u8 = 2;
+    const GPIOC_C8: u32 = 8 & GPIO_PINMASK;
 
     loop {
-        bkpt();
+        //TODO disable watchdog OR better yet, frequently reset it
+        //bkpt();v
+
+        dp.PIOC.pio_odsr.modify(|r,w| unsafe {
+            let old_pin_val = r.bits() & GPIOC_C8;
+            let next_reg_val = r.bits() & (!old_pin_val);
+            w.bits(next_reg_val)
+        });
+
+        //	bits_clear = hri_pio_get_ODSR_reg(hw, mask);
+        // 	bits_set   = (~bits_clear) & mask;
+        // 	hri_pio_set_ODSR_reg(hw, bits_set);
+        // 	hri_pio_clear_ODSR_reg(hw, bits_clear);
+
+        cortex_m::asm::delay(1000);
+        // dp.WDT.wdt_sr.reset();
+        // // dp.WDT.wdt_sr.write(|w| unsafe {
+        // //     w.bits(0)
+        // // });
     }
 }
