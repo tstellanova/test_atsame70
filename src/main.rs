@@ -1,11 +1,15 @@
 #![no_std]
 #![no_main]
 
-use panic_halt::{self};
-use cortex_m_rt::{entry, ExceptionFrame};
+use panic_semihosting;
+use cortex_m_semihosting::hprintln;
+
+use cortex_m_rt as rt;
+use rt::{entry, ExceptionFrame};
 
 use atsame7xx_hal as p_hal;
 use p_hal::pac as pac;
+use cortex_m::asm::bkpt;
 
 fn setup_peripherals() {
     let dp = pac::Peripherals::take().unwrap();
@@ -74,9 +78,11 @@ fn setup_peripherals() {
 
 #[entry]
 fn main() -> ! {
+    hprintln!("--- MAIN ---").unwrap();
+
     setup_peripherals();
 
     loop {
-
+        bkpt();
     }
 }

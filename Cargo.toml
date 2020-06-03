@@ -11,4 +11,5 @@ atsame7xx-hal = {path="../atsame7xx-hal", features=["same70q21b"]}
 cortex-m = "0.6.0"
 cortex-m-rt = "0.6.10"
 embedded-hal = "0.2.3"
-panic-halt = "0.2.0"
+panic-semihosting = "0.5.3"
+cortex-m-semihosting = "0.3.3"
