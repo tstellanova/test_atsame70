@@ -7,8 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-atsame70q21b = {path="../atsams70-rust/pac/atsame70q21b", features = ["rt"]}
-atsamx7x-hal = {path="../atsams70-rust/hal", features=["same70q21"]}
+atsame7xx-hal = {path="../atsame7xx-hal", features=["same70q21b"]}
 cortex-m = "0.6.0"
 cortex-m-rt = "0.6.10"
 embedded-hal = "0.2.3"
