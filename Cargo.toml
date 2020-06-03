@@ -1,0 +1,15 @@
+[package]
+name = "test_atsame70"
+version = "0.1.0"
+authors = ["Todd Stellanova <tstellanova@users.noreply.github.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+atsame70q21b = {path="../atsams70-rust/pac/atsame70q21b", features = ["rt"]}
+atsamx7x-hal = {path="../atsams70-rust/hal", features=["same70q21"]}
+cortex-m = "0.6.0"
+cortex-m-rt = "0.6.10"
+embedded-hal = "0.2.3"
+panic-halt = "0.2.0"
